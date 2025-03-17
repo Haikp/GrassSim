@@ -1,0 +1,43 @@
+# Build directories
+/build/
+/CMakeFiles/
+/CMakeCache.txt
+/CMakeLists.txt.user
+/Makefile
+/Debug/
+*/Debug/
+/Release/
+*/Release/
+
+# Object files
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+
+# Executables
+*.exe
+*.out
+*.app
+
+# IDE files (for various editors)
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Dependency directories
+libs/
+
+# Log files
+*.log
+
