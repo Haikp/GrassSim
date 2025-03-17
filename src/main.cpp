@@ -3,13 +3,20 @@
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+
 #include "camera.h"
+#include "shaders.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 void processInput(GLFWwindow*);
+
+std::string path_to_vertex_glsl = std::string(TOSTRING(SHADER_PATH)) + "vertex.glsl";
+std::string path_to_fragment_glsl = std::string(TOSTRING(SHADER_PATH)) + "fragment.glsl";
 
 unsigned int xWindowSize = 1080;
 unsigned int yWindowSize = 720;
@@ -42,6 +49,9 @@ int main()
         return -1;
     }
 
+    Shader shaderProgram(path_to_vertex_glsl.c_str(), path_to_fragment_glsl.c_str());
+    shaderProgram.use();
+
     float vertices[] = {
         //coordinates
          0.5f,  0.5f,  0.0f,
@@ -65,7 +75,7 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
@@ -77,7 +87,7 @@ int main()
     glm::vec3 cameraForward = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 cameraOrientation = glm::vec3(0.0f, 1.0f, 0.0f);
 
-    Camera camera(cameraPosition, cameraForward, cameraOrientation, xWindowSize, yWindowSize);
+    //Camera camera(cameraPosition, cameraForward, cameraOrientation, xWindowSize, yWindowSize);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -88,7 +98,7 @@ int main()
         glClearColor(.0f, .0f, .0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        camera.TakeInputs(window);
+        //camera.TakeInputs(window);
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 

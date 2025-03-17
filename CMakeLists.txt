@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.20)
 project (grass VERSION 0.1.0)
 
+add_definitions(-DSHADER_PATH=${CMAKE_SOURCE_DIR}/shaders/)
+
 add_executable(app src/main.cpp)
 
 set(OSBitness 32)
@@ -35,9 +37,11 @@ target_include_directories(app PRIVATE include)
 
 #add subdirectories
 add_subdirectory(modules/camera)
+add_subdirectory(modules/shaders)
 
 #link against modules
 target_link_libraries(app PRIVATE camera)
+target_link_libraries(app PRIVATE shaders)
 
 #### LIBRARIES/DEPENDENCIES ####
 
