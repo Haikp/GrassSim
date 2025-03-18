@@ -54,10 +54,10 @@ int main()
 
     float vertices[] = {
         //coordinates
-         0.5f,  0.5f,  0.0f,
-        -0.5f,  0.5f,  0.0f,
-        -0.5f, -0.5f,  0.0f,
-         0.5f, -0.5f,  0.0f
+         0.5f,  0.0f,  0.5f,
+        -0.5f,  0.0f,  0.5f,
+        -0.5f,  0.0f, -0.5f,
+         0.5f,  0.0f, -0.5f
     };
 
     unsigned int indices[] = {
@@ -85,7 +85,11 @@ int main()
     glm::vec3 cameraForward = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 cameraOrientation = glm::vec3(0.0f, 1.0f, 0.0f);
 
-    //Camera camera(cameraPosition, cameraForward, cameraOrientation, xWindowSize, yWindowSize);
+    Camera camera(cameraPosition, cameraForward, cameraOrientation, xWindowSize, yWindowSize);
+
+    float fov = 90.0f;
+    glm::mat4 projection = glm::perspective(glm::radians(fov), ((float)xWindowSize / (float)yWindowSize), 0.1f, 100.0f);
+    shaderProgram.setMat4("projection", projection);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -96,7 +100,13 @@ int main()
         glClearColor(.0f, .0f, .0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //camera.TakeInputs(window);
+        camera.TakeInputs(window);
+
+        glm::mat4 view = camera.getViewMat();
+        glm::mat4 model = glm::mat4(1.0f);
+
+        shaderProgram.setMat4("view", view);
+        shaderProgram.setMat4("model", model);
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
