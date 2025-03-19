@@ -3,7 +3,8 @@ project (grass VERSION 0.1.0)
 
 add_definitions(-DSHADER_PATH=${CMAKE_SOURCE_DIR}/shaders/)
 
-add_executable(app src/main.cpp)
+add_executable(app src/main.cpp
+                   ${CMAKE_SOURCE_DIR}/libs/stb/stb.cpp)
 
 set(OSBitness 32)
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -38,12 +39,17 @@ target_include_directories(app PRIVATE include)
 #add subdirectories
 add_subdirectory(modules/camera)
 add_subdirectory(modules/shaders)
+add_subdirectory(modules/model)
 
 #link against modules
 target_link_libraries(app PRIVATE camera)
 target_link_libraries(app PRIVATE shaders)
+target_link_libraries(app PRIVATE model)
 
 #### LIBRARIES/DEPENDENCIES ####
 
-add_subdirectory(libs/glm)
-include_directories(libs/glm)
+add_subdirectory(${CMAKE_SOURCE_DIR}/libs/glm)
+include_directories(${CMAKE_SOURCE_DIR}/libs/glm)
+
+target_include_directories(app PRIVATE ${CMAKE_SOURCE_DIR}/libs/assimp/include)
+target_link_libraries(app PRIVATE ${CMAKE_SOURCE_DIR}/libs/assimp/build/bin/libassimp.so)
