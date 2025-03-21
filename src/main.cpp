@@ -2,6 +2,7 @@
 #include "GL/glew.h"
 #include <GLFW/glfw3.h>
 #include <stdio.h>
+#include <random>
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -19,12 +20,18 @@
 #include <assimp/postprocess.h>
 
 void processInput(GLFWwindow*);
+float getRandomFloat(float, float);
 
 std::string path_to_vertex_glsl = std::string(TOSTRING(SHADER_PATH)) + "vertex.glsl";
 std::string path_to_fragment_glsl = std::string(TOSTRING(SHADER_PATH)) + "fragment.glsl";
+std::string path_to_grass_model = std::string(TOSTRING(MODEL_PATH)) + "grass_blade/grass_blade.obj";
+std::string path_to_grass_vertex_glsl = std::string(TOSTRING(SHADER_PATH)) + "grass_vertex.glsl";
+std::string path_to_grass_fragment_glsl = std::string(TOSTRING(SHADER_PATH)) + "grass_fragment.glsl";
 
 unsigned int xWindowSize = 1080;
 unsigned int yWindowSize = 720;
+
+const int grassCount = 150;
 
 int main()
 {
@@ -59,10 +66,10 @@ int main()
 
     float vertices[] = {
         //coordinates
-         0.5f,  0.0f,  0.5f,
-        -0.5f,  0.0f,  0.5f,
-        -0.5f,  0.0f, -0.5f,
-         0.5f,  0.0f, -0.5f
+         1.0f,  0.0f,  1.0f,
+        -1.0f,  0.0f,  1.0f,
+        -1.0f,  0.0f, -1.0f,
+         1.0f,  0.0f, -1.0f
     };
 
     unsigned int indices[] = {
@@ -86,7 +93,30 @@ int main()
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
-    glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 10.0f);
+    Model grass(path_to_grass_model.c_str());
+    Shader grassShader(path_to_grass_vertex_glsl.c_str(), path_to_grass_fragment_glsl.c_str());
+
+    vector<glm::vec3> grassPosition;
+    vector<float> grassRotation;
+
+    for (int i = 0; i < grassCount; i++)
+    {
+        glm::vec3 position;
+        position.x = getRandomFloat(-1.0f, 1.0f);
+        position.y = 0.0f;
+        position.z = getRandomFloat(-1.0f, 1.0f);
+
+        grassPosition.push_back(position);
+    }
+
+    for (int i = 0; i < grassCount; i++)
+    {
+        float radians = getRandomFloat(0.0f, 180.0f);
+
+        grassRotation.push_back(radians);
+    }
+
+    glm::vec3 cameraPosition = glm::vec3(0.0f, 5.0f, 5.0f);
     glm::vec3 cameraForward = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 cameraOrientation = glm::vec3(0.0f, 1.0f, 0.0f);
 
@@ -107,13 +137,36 @@ int main()
 
         camera.TakeInputs(window);
 
+        shaderProgram.use();
+        glBindVertexArray(VAO);
+
         glm::mat4 view = camera.getViewMat();
         glm::mat4 model = glm::mat4(1.0f);
 
+        shaderProgram.setMat4("projection", projection);
         shaderProgram.setMat4("view", view);
         shaderProgram.setMat4("model", model);
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        grassShader.use();
+
+        float getTime = glfwGetTime();
+
+        for (int i = 0; i < grassCount; i++)
+        {
+            //grassShader.setFloat("uTime", getTime);
+            grassShader.setMat4("projection", projection);
+            grassShader.setMat4("view", view);
+
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, grassPosition[i]);
+            model = glm::rotate(model, glm::radians(grassRotation[i]), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
+            grassShader.setMat4("model", model);
+
+            grass.Draw(grassShader);
+        }
 
         glfwSwapBuffers(window);
 
@@ -128,4 +181,11 @@ void processInput(GLFWwindow *window)
 {
     if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+}
+
+float getRandomFloat(float min, float max) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dist(min, max);
+    return dist(gen);
 }

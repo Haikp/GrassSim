@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 project (grass VERSION 0.1.0)
 
 add_definitions(-DSHADER_PATH=${CMAKE_SOURCE_DIR}/shaders/)
+add_definitions(-DMODEL_PATH=${CMAKE_SOURCE_DIR}/assets/models/)
 
 add_executable(app src/main.cpp
                    ${CMAKE_SOURCE_DIR}/libs/stb/stb.cpp)
